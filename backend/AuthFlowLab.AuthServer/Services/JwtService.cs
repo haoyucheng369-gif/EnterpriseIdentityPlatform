@@ -1,15 +1,20 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.IdentityModel.Tokens;
+
+namespace AuthFlowLab.AuthServer.Services;
 
 public class JwtService
 {
     private readonly IConfiguration _configuration;
+    private readonly IWebHostEnvironment _environment;
 
-    public JwtService(IConfiguration configuration)
+    public JwtService(IConfiguration configuration, IWebHostEnvironment environment)
     {
         _configuration = configuration;
+        _environment = environment;
     }
 
     public string GenerateUserToken(string username, string role)
@@ -46,9 +51,13 @@ public class JwtService
         var privateKeyPath = _configuration["Jwt:PrivateKeyPath"]
             ?? throw new InvalidOperationException("Private key path is missing.");
 
+        privateKeyPath = Path.IsPathRooted(privateKeyPath)
+            ? privateKeyPath
+            : Path.GetFullPath(privateKeyPath, _environment.ContentRootPath);
+
         var privateKey = File.ReadAllText(privateKeyPath);
 
-        using var rsa = RSA.Create();
+        var rsa = RSA.Create();
         rsa.ImportFromPem(privateKey);
 
         var signingKey = new RsaSecurityKey(rsa);

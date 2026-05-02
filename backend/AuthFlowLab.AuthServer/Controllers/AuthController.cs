@@ -20,26 +20,37 @@ public class AuthController : ControllerBase
     {
         if (request.Username == "admin" && request.Password == "admin123")
         {
-            var token = _jwtService.GenerateAccessToken("admin", "Admin");
-
             return Ok(new
             {
-                access_token = token,
+                access_token = _jwtService.GenerateUserToken("admin", "Admin"),
                 token_type = "Bearer"
             });
         }
 
         if (request.Username == "user" && request.Password == "user123")
         {
-            var token = _jwtService.GenerateAccessToken("user", "User");
-
             return Ok(new
             {
-                access_token = token,
+                access_token = _jwtService.GenerateUserToken("user", "User"),
                 token_type = "Bearer"
             });
         }
 
         return Unauthorized("Invalid username or password");
+    }
+
+    [HttpPost("client-token")]
+    public IActionResult ClientToken(ClientTokenRequest request)
+    {
+        if (request.ClientId == "worker-service" && request.ClientSecret == "worker-secret")
+        {
+            return Ok(new
+            {
+                access_token = _jwtService.GenerateServiceToken("worker-service", "content.read"),
+                token_type = "Bearer"
+            });
+        }
+
+        return Unauthorized();
     }
 }

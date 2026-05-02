@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="AuthFlowLab.ApiServer/AuthFlowLab.ApiServer.csproj" />
+  <Project Path="AuthFlowLab.AuthServer/AuthFlowLab.AuthServer.csproj" />
+</Solution>

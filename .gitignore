@@ -1,0 +1,11 @@
+# Ignore private keys
+keys/*.key
+
+# Ignore user-specific files
+.vscode/
+*.user
+*.suo
+
+# Ignore build output
+bin/
+obj/

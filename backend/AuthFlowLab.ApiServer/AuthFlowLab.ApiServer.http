@@ -1,0 +1,6 @@
+@AuthFlowLab.ApiServer_HostAddress = http://localhost:5083
+
+GET {{AuthFlowLab.ApiServer_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

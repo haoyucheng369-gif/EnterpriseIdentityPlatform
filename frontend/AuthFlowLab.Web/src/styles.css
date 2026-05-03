@@ -1,0 +1,237 @@
+:root {
+  color: #212529;
+  background: #f8f9fa;
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+.app-shell {
+  display: grid;
+  grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+  gap: 1rem;
+  min-height: 100vh;
+  padding: 1.25rem;
+}
+
+.card {
+  align-self: start;
+  border: 1px solid #dee2e6;
+  border-radius: 0.5rem;
+  background: #ffffff;
+  padding: 1rem;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.login-card {
+  display: grid;
+  gap: 0.875rem;
+}
+
+.content-card {
+  grid-column: 2;
+}
+
+.eyebrow {
+  margin: 0 0 0.25rem;
+  color: #6c757d;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  margin-bottom: 0;
+  font-size: 1.75rem;
+  line-height: 1.2;
+}
+
+h2 {
+  margin-bottom: 0.875rem;
+  font-size: 1.125rem;
+  line-height: 1.3;
+}
+
+h3 {
+  margin-bottom: 0.5rem;
+  color: #495057;
+  font-size: 0.875rem;
+}
+
+.form-field {
+  display: grid;
+  gap: 0.375rem;
+  color: #343a40;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+input {
+  width: 100%;
+  border: 1px solid #ced4da;
+  border-radius: 0.375rem;
+  padding: 0.5rem 0.75rem;
+  color: #212529;
+  background: #ffffff;
+}
+
+input:focus {
+  border-color: #86b7fe;
+  outline: 0;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.btn {
+  min-height: 2.375rem;
+  border: 1px solid transparent;
+  border-radius: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-primary {
+  border-color: #0d6efd;
+  color: #ffffff;
+  background: #0d6efd;
+}
+
+.btn-primary:hover {
+  border-color: #0a58ca;
+  background: #0b5ed7;
+}
+
+.btn-outline {
+  border-color: #6c757d;
+  color: #495057;
+  background: #ffffff;
+}
+
+.btn-outline:hover {
+  color: #ffffff;
+  background: #6c757d;
+}
+
+.alert {
+  margin: 0;
+  border: 1px solid #ffe69c;
+  border-radius: 0.375rem;
+  padding: 0.625rem 0.75rem;
+  color: #664d03;
+  background: #fff3cd;
+  font-size: 0.875rem;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.875rem;
+}
+
+.card-header h2 {
+  margin-bottom: 0;
+}
+
+.status {
+  border-radius: 999px;
+  padding: 0.25rem 0.5rem;
+  color: #6c757d;
+  background: #e9ecef;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.status-success {
+  color: #0f5132;
+  background: #d1e7dd;
+}
+
+.claim-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.625rem;
+  margin: 0 0 1rem;
+}
+
+.claim-item {
+  border: 1px solid #e9ecef;
+  border-radius: 0.375rem;
+  padding: 0.625rem;
+  background: #f8f9fa;
+}
+
+dt {
+  color: #6c757d;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+dd {
+  margin: 0.25rem 0 0;
+  overflow-wrap: anywhere;
+}
+
+pre {
+  margin: 0;
+  overflow: auto;
+  border-radius: 0.375rem;
+  background: #212529;
+  color: #f8f9fa;
+  padding: 0.75rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.empty {
+  margin-bottom: 0;
+  color: #6c757d;
+}
+
+.token-block + .token-block {
+  margin-top: 0.875rem;
+}
+
+@media (max-width: 840px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+    padding: 0.875rem;
+  }
+
+  .content-card {
+    grid-column: auto;
+  }
+
+  .claim-list {
+    grid-template-columns: 1fr;
+  }
+}

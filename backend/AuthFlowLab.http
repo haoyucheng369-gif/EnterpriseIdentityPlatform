@@ -73,6 +73,12 @@ GET {{ApiServer}}/content/service
 Accept: application/json
 Authorization: Bearer {{serviceToken.response.body.$.access_token}}
 
+### API key can access API-key-only content
+# API Key 鉴权：ApiServer 直接校验 X-Api-Key，不经过 AuthServer，也不是 OAuth2/OIDC flow。
+GET {{ApiServer}}/content/api-key
+Accept: application/json
+X-Api-Key: dev-api-key-123
+
 ### Service token can also access content.read
 # service token 也可以按 scope 访问普通资源。
 GET {{ApiServer}}/content/read

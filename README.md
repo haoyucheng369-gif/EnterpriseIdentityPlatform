@@ -8,7 +8,7 @@ A minimal authentication and authorization lab for learning JWT bearer validatio
 - Client credentials uses the OAuth2-style `/connect/token` endpoint.
 - Auth Server exposes OpenID Connect discovery metadata and JWKS.
 - API Server validates JWTs signed by Auth Server.
-- API endpoints demonstrate anonymous, authenticated, role, scope, and service-only authorization.
+- API endpoints demonstrate anonymous, authenticated, role, scope, service-only, and API-key authorization.
 
 ## Architecture
 
@@ -46,6 +46,14 @@ Client:
 | `worker-service` | `worker-secret` | `content.read content.write` |
 
 These are lab credentials. Do not use committed secrets for real systems.
+
+API key:
+
+| Name | Header | Value |
+| --- | --- | --- |
+| `internal-tool` | `X-Api-Key` | `dev-api-key-123` |
+
+The API key is a lab credential configured on the API Server. It is not an OAuth2/OIDC grant type.
 
 ## Auth Server API
 
@@ -121,12 +129,20 @@ The JWKS document exposes the RSA public key used by API servers to verify JWT s
 | `GET /content/read` | `content.read` scope |
 | `POST /content/write` | `content.write` scope |
 | `GET /content/service` | `token_type=service` |
+| `GET /content/api-key` | Valid `X-Api-Key` header |
 
 Example:
 
 ```http
 GET http://127.0.0.1:5002/content/read
 Authorization: Bearer <access_token>
+```
+
+API key example:
+
+```http
+GET http://127.0.0.1:5002/content/api-key
+X-Api-Key: dev-api-key-123
 ```
 
 ## HTTP Examples

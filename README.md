@@ -13,14 +13,38 @@ A minimal authentication and authorization lab for learning JWT bearer validatio
 
 ## Architecture
 
-Frontend -> Auth Server -> API -> Database
+Frontend -> Auth Server -> API
 
 For the current lab stage:
 
-- Auth Server signs JWTs with `keys/private.key`.
-- Auth Server exposes its public signing key through JWKS.
+- Auth Server signs JWTs with `keys/private.key` when the file exists.
+- If no private key file exists, Auth Server generates an ephemeral RSA key for the current process.
+- Auth Server exposes its public signing key through JWKS, so a separate `public.key` file is not required.
 - API Server uses `Jwt:Authority` to load discovery metadata and JWKS automatically.
 - User accounts, client credentials, allowed scopes, and token lifetime are configured in `AuthFlowLab.AuthServer/appsettings.json`.
+
+## Run With Docker
+
+From the repository root:
+
+```powershell
+# 中文注释: 构建并启动前端、认证服务器和 API 服务器。
+docker compose up --build
+```
+
+Open:
+
+```text
+# 中文注释: Docker 一键启动后的前端地址。
+http://127.0.0.1:5173
+```
+
+Stop the stack:
+
+```powershell
+# 中文注释: 停止并移除 Docker Compose 启动的容器。
+docker compose down
+```
 
 ## Run Locally
 
@@ -248,6 +272,13 @@ Frontend build:
 cd frontend\AuthFlowLab.Web
 npm run build
 ```
+
+## Repository Notes
+
+- `keys/*.key` is ignored by Git. Keep private signing keys local.
+- `keys/public.key` is not needed because JWKS is generated from the active signing key.
+- `frontend/AuthFlowLab.Web/package-lock.json` is committed on purpose. This is an application, and the lock file keeps `npm ci` and Docker builds reproducible.
+- Build output such as `bin/`, `obj/`, `node_modules/`, `dist/`, and `*.tsbuildinfo` is ignored.
 
 ## Browser Flow
 

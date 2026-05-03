@@ -1,0 +1,37 @@
+services:
+  auth-server:
+    build:
+      context: .
+      dockerfile: backend/AuthFlowLab.AuthServer/Dockerfile
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      Jwt__Issuer: http://auth-server:8080
+      Jwt__Audience: api-server
+      Jwt__KeyId: auth-flow-lab-key-1
+      Cors__AllowedOrigins__0: http://127.0.0.1:5173
+    ports:
+      - "5001:8080"
+
+  api-server:
+    build:
+      context: .
+      dockerfile: backend/AuthFlowLab.ApiServer/Dockerfile
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      Jwt__Authority: http://auth-server:8080
+      Jwt__Audience: api-server
+      Jwt__RequireHttpsMetadata: "false"
+      Cors__AllowedOrigins__0: http://127.0.0.1:5173
+    ports:
+      - "5002:8080"
+    depends_on:
+      - auth-server
+
+  frontend:
+    build:
+      context: frontend/AuthFlowLab.Web
+    ports:
+      - "5173:80"
+    depends_on:
+      - auth-server
+      - api-server

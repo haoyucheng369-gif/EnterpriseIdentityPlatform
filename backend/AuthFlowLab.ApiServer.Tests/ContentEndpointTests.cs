@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Net.Http.Headers;
+using System.Runtime.CompilerServices;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Hosting;
@@ -217,19 +218,30 @@ public sealed class ApiServerFactory : WebApplicationFactory<Program>
         });
     }
 
-    private static string FindProjectDirectory(string projectName)
+    private static string FindProjectDirectory(
+        string projectName,
+        [CallerFilePath] string sourceFilePath = "")
     {
-        var directory = new DirectoryInfo(Directory.GetCurrentDirectory());
-
-        while (directory is not null)
+        var startDirectories = new[]
         {
-            var projectDirectory = Path.Combine(directory.FullName, "backend", projectName);
-            if (File.Exists(Path.Combine(projectDirectory, $"{projectName}.csproj")))
-            {
-                return projectDirectory;
-            }
+            Directory.GetCurrentDirectory(),
+            AppContext.BaseDirectory,
+            Path.GetDirectoryName(sourceFilePath) ?? Directory.GetCurrentDirectory()
+        };
 
-            directory = directory.Parent;
+        foreach (var startDirectory in startDirectories)
+        {
+            var directory = new DirectoryInfo(startDirectory);
+            while (directory is not null)
+            {
+                var projectDirectory = Path.Combine(directory.FullName, "backend", projectName);
+                if (File.Exists(Path.Combine(projectDirectory, $"{projectName}.csproj")))
+                {
+                    return projectDirectory;
+                }
+
+                directory = directory.Parent;
+            }
         }
 
         throw new DirectoryNotFoundException($"Could not find project directory for {projectName}.");

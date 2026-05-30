@@ -29,15 +29,28 @@ In the SSO flow, Entra ID only proves who the user is. AuthFlowLab still decides
 
 ```mermaid
 flowchart LR
-    SPA[React SPA] -->|Local Login / PKCE| Auth[AuthFlowLab Auth Server]
-    Auth -->|Optional SSO| Entra[Microsoft Entra ID]
-    SPA -->|Direct Entra Login| Entra
-    Auth -->|Local JWT + JWKS| API[AuthFlowLab API Server]
-    Entra -->|Entra JWT + JWKS| API
-    Worker[worker-service] -->|client_credentials| Auth
+    subgraph InteractiveUserLogin[Interactive user login]
+        SPA[React SPA]
+        Auth[AuthFlowLab Auth Server]
+        Entra[Microsoft Entra ID]
+        SPA -->|Local Login: authorization code + PKCE| Auth
+        Auth -->|SSO option on login page| Entra
+        Entra -->|OIDC callback to /signin-entra| Auth
+        SPA -->|Direct Entra Login with MSAL| Entra
+    end
+
+    subgraph ServiceToService[Service-to-service]
+        Worker[worker-service]
+        Worker -->|client_credentials only, no SSO| Auth
+    end
+
+    Auth -->|AuthFlowLab JWT + JWKS| API[AuthFlowLab API Server]
+    Entra -->|Direct Entra JWT + JWKS| API
     SPA -->|Bearer token| API
-    Worker -->|Bearer token| API
+    Worker -->|Service bearer token| API
 ```
+
+SSO is only part of the interactive user login path. Background services use `client_credentials` and do not redirect to Entra for user SSO.
 
 ## Authorization Model
 

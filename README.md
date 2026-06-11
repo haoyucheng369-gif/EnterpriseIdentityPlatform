@@ -1,6 +1,6 @@
 # AuthFlowLab
 
-AuthFlowLab is a full-stack identity and authorization reference implementation built with ASP.NET Core and React. It implements a custom OAuth2/OIDC authorization server from scratch, protected resource APIs, browser-based login, service-to-service access, Microsoft Entra ID integration, federated SSO, and a BFF token-handling model.
+AuthFlowLab is a full-stack identity and authorization system built with ASP.NET Core and React. It implements a custom OAuth2/OIDC authorization server from scratch, protected resource APIs, browser-based login, service-to-service access, Microsoft Entra ID integration, federated SSO, and a BFF token-handling model.
 
 The architecture mirrors common enterprise identity boundaries: authentication, token issuance, JWT validation, scope/role authorization, external identity federation, browser session protection, and API access control.
 
@@ -13,7 +13,7 @@ The architecture mirrors common enterprise identity boundaries: authentication, 
 - React SPA with local login, Auth Server SSO login, direct Entra login, logout, token inspection, and claims inspection.
 - Authorization policies for user scopes, roles, service tokens, and API keys.
 - RSA-backed JWT signing with public-key discovery through JWKS.
-- Backend tests, frontend build verification, Docker support, and `.http` request samples.
+- Backend tests, frontend build verification, Docker support, and `.http` request collections.
 
 ## Login Modes
 
@@ -27,7 +27,7 @@ The architecture mirrors common enterprise identity boundaries: authentication, 
 
 In the SSO flow, Entra ID only proves who the user is. AuthFlowLab still decides what the user can do by mapping the Entra username claim to a local user record and issuing first-party tokens with local scopes and roles.
 
-The current service-to-service path is local Auth Server only. This project does not configure an Entra client-credentials service client.
+Service-to-service access is modeled through the local Auth Server client-credentials flow. Entra ID is used for user federation and direct SPA login in this implementation.
 
 ## User Login Flow
 
@@ -71,7 +71,7 @@ flowchart LR
     Worker -->|D3 bearer service token| API
 ```
 
-The worker-service path is local Auth Server only. It does not use Entra, does not redirect to SSO, and does not represent a signed-in user. API key access is also supported, but it is kept out of the main architecture flow because it is a separate non-OAuth authentication path.
+The worker-service path uses client credentials against the local Auth Server. It does not redirect to SSO and does not represent a signed-in user. API key access is also supported, but it is kept out of the main architecture flow because it is a separate non-OAuth authentication path.
 
 ## BFF Backend Flow
 
@@ -107,7 +107,7 @@ Direct Entra tokens use Entra claims:
 - `scp=access_as_user` allows read endpoints.
 - `scp=write_as_user` can allow write endpoints if that scope is configured in Azure.
 
-The current direct Entra SPA configuration requests only `access_as_user` so the flow works even when the optional Azure `write_as_user` scope has not been created.
+The direct Entra SPA configuration requests `access_as_user` for the read path. `write_as_user` can be enabled when the matching Azure API scope is created.
 
 ## Run
 
@@ -141,7 +141,7 @@ npm run dev
 
 Open `http://localhost:5173`.
 
-## Test Identities
+## Local Runtime Credentials
 
 | Type | Identifier | Secret | Access |
 | --- | --- | --- | --- |
@@ -152,7 +152,7 @@ Open `http://localhost:5173`.
 | BFF | `demo-bff` | `bff-secret` | `openid profile content.read content.write` |
 | API key | `internal-tool` | `dev-api-key-123` | `X-Api-Key` |
 
-These are development credentials for the local environment. Do not use committed secrets for production systems.
+These credentials are for running the local stack. Production deployments should source secrets from managed secret storage and environment-specific configuration.
 
 ## Entra SSO Setup
 
@@ -228,7 +228,7 @@ Auth Server:
 
 - `backend/AuthFlowLab.AuthServer/Controllers/AccountController.cs` owns the login page, external login entry point, logout, and Auth Server cookie.
 - `backend/AuthFlowLab.AuthServer/Controllers/ConnectController.cs` owns `/connect/authorize`, `/connect/token`, UserInfo, PKCE validation, scope checks, and code exchange.
-- `backend/AuthFlowLab.AuthServer/Options/EntraExternalLoginOptions.cs` controls the optional Entra SSO provider.
+- `backend/AuthFlowLab.AuthServer/Options/EntraExternalLoginOptions.cs` controls the configured Entra SSO provider.
 - `backend/AuthFlowLab.AuthServer/Services/JwtService.cs` signs user, service, and ID tokens.
 
 API Server:

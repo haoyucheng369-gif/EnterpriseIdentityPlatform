@@ -2,7 +2,7 @@ services:
   auth-server:
     build:
       context: .
-      dockerfile: backend/AuthFlowLab.AuthServer/Dockerfile
+      dockerfile: backend/EnterpriseIdentityPlatform.AuthServer/Dockerfile
     environment:
       ASPNETCORE_URLS: http://+:8080
       Jwt__Issuer: http://auth-server:8080
@@ -16,7 +16,7 @@ services:
   api-server:
     build:
       context: .
-      dockerfile: backend/AuthFlowLab.ApiServer/Dockerfile
+      dockerfile: backend/EnterpriseIdentityPlatform.ApiServer/Dockerfile
     environment:
       ASPNETCORE_URLS: http://+:8080
       Jwt__Authority: http://auth-server:8080
@@ -29,11 +29,11 @@ services:
     depends_on:
       - auth-server
 
-  # BFF 在服务端保存 access token，浏览器只通过 HttpOnly cookie 访问 BFF。
+  # BFF 鍦ㄦ湇鍔＄淇濆瓨 access token锛屾祻瑙堝櫒鍙€氳繃 HttpOnly cookie 璁块棶 BFF銆?
   bff:
     build:
       context: .
-      dockerfile: backend/AuthFlowLab.Bff/Dockerfile
+      dockerfile: backend/EnterpriseIdentityPlatform.Bff/Dockerfile
     environment:
       ASPNETCORE_URLS: http://+:8080
       Bff__AuthServerPublicUrl: http://localhost:5001
@@ -50,7 +50,7 @@ services:
 
   frontend:
     build:
-      context: frontend/AuthFlowLab.Web
+      context: frontend/EnterpriseIdentityPlatform.Web
     ports:
       - "5173:80"
     depends_on:

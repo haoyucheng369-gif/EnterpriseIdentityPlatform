@@ -1,6 +1,6 @@
-# AuthFlowLab
+# EnterpriseIdentityPlatform
 
-AuthFlowLab is a full-stack identity and authorization system built with ASP.NET Core and React. It implements a custom OAuth2/OIDC authorization server from scratch, protected resource APIs, browser-based login, service-to-service access, Microsoft Entra ID integration, federated SSO, and a BFF token-handling model.
+EnterpriseIdentityPlatform is a full-stack identity and authorization system built with ASP.NET Core and React. It implements a custom OAuth2/OIDC authorization server from scratch, protected resource APIs, browser-based login, service-to-service access, Microsoft Entra ID integration, federated SSO, and a BFF token-handling model.
 
 The architecture mirrors common enterprise identity boundaries: authentication, token issuance, JWT validation, scope/role authorization, external identity federation, browser session protection, and API access control.
 
@@ -19,13 +19,13 @@ The architecture mirrors common enterprise identity boundaries: authentication, 
 
 | Mode | Flow | Token Used By API | Permission Source |
 | --- | --- | --- | --- |
-| Local Login | SPA -> Auth Server -> API | AuthFlowLab access token | Local `Auth:Users` + `Auth:Clients` |
-| Auth Server SSO | SPA -> Auth Server -> Entra -> Auth Server -> API | AuthFlowLab access token | Entra identifies the user; Auth Server maps to local scopes/roles |
+| Local Login | SPA -> Auth Server -> API | EnterpriseIdentityPlatform access token | Local `Auth:Users` + `Auth:Clients` |
+| Auth Server SSO | SPA -> Auth Server -> Entra -> Auth Server -> API | EnterpriseIdentityPlatform access token | Entra identifies the user; Auth Server maps to local scopes/roles |
 | Direct Entra Login | SPA -> Entra -> API | Entra access token | Entra API scopes such as `access_as_user` |
-| Client Credentials | Service -> Auth Server -> API | AuthFlowLab service token | Registered local service client scopes |
-| BFF Login | Browser -> BFF -> Auth Server -> BFF -> API | AuthFlowLab access token stored by BFF | Local `Auth:Users` + `demo-bff` client |
+| Client Credentials | Service -> Auth Server -> API | EnterpriseIdentityPlatform service token | Registered local service client scopes |
+| BFF Login | Browser -> BFF -> Auth Server -> BFF -> API | EnterpriseIdentityPlatform access token stored by BFF | Local `Auth:Users` + `demo-bff` client |
 
-In the SSO flow, Entra ID only proves who the user is. AuthFlowLab still decides what the user can do by mapping the Entra username claim to a local user record and issuing first-party tokens with local scopes and roles.
+In the SSO flow, Entra ID only proves who the user is. EnterpriseIdentityPlatform still decides what the user can do by mapping the Entra username claim to a local user record and issuing first-party tokens with local scopes and roles.
 
 Service-to-service access is modeled through the local Auth Server client-credentials flow. Entra ID is used for user federation and direct SPA login in this implementation.
 
@@ -34,28 +34,28 @@ Service-to-service access is modeled through the local Auth Server client-creden
 ```mermaid
 flowchart LR
     SPA[React SPA]
-    Auth[AuthFlowLab Auth Server]
+    Auth[EnterpriseIdentityPlatform Auth Server]
     Entra[Microsoft Entra ID]
-    API[AuthFlowLab API Server]
+    API[EnterpriseIdentityPlatform API Server]
 
     SPA -->|A1 local authorize code + PKCE| Auth
-    Auth -->|A2 AuthFlowLab user token| API
+    Auth -->|A2 EnterpriseIdentityPlatform user token| API
 
     SPA -->|B1 start local authorize flow| Auth
     Auth -->|B2 redirect user to Entra| Entra
     Entra -->|B3 OIDC callback to /signin-entra| Auth
-    Auth -->|B4 map local user and issue AuthFlowLab token| API
+    Auth -->|B4 map local user and issue EnterpriseIdentityPlatform token| API
 
     SPA -->|C1 direct Entra login with MSAL| Entra
     Entra -->|C2 Entra access token| API
 ```
 
-The SPA has three user-facing options: local Auth Server login, Auth Server SSO through Entra, and direct Entra login. In the SSO path, Entra authenticates the user, but AuthFlowLab still issues the API token after local user mapping.
+The SPA has three user-facing options: local Auth Server login, Auth Server SSO through Entra, and direct Entra login. In the SSO path, Entra authenticates the user, but EnterpriseIdentityPlatform still issues the API token after local user mapping.
 
 | Path | Steps | Result |
 | --- | --- | --- |
-| A. Local Login | A1 -> A2 | AuthFlowLab authenticates the user and issues an AuthFlowLab token. |
-| B. Auth Server SSO | B1 -> B2 -> B3 -> B4 | Entra authenticates the user; AuthFlowLab maps local permissions and issues an AuthFlowLab token. |
+| A. Local Login | A1 -> A2 | EnterpriseIdentityPlatform authenticates the user and issues an EnterpriseIdentityPlatform token. |
+| B. Auth Server SSO | B1 -> B2 -> B3 -> B4 | Entra authenticates the user; EnterpriseIdentityPlatform maps local permissions and issues an EnterpriseIdentityPlatform token. |
 | C. Direct Entra Login | C1 -> C2 | Entra issues the API token directly. |
 
 ## Service Flow
@@ -63,11 +63,11 @@ The SPA has three user-facing options: local Auth Server login, Auth Server SSO 
 ```mermaid
 flowchart LR
     Worker[worker-service]
-    Auth[AuthFlowLab Auth Server]
-    API[AuthFlowLab API Server]
+    Auth[EnterpriseIdentityPlatform Auth Server]
+    API[EnterpriseIdentityPlatform API Server]
 
     Worker -->|D1 client_credentials| Auth
-    Auth -->|D2 AuthFlowLab service token| Worker
+    Auth -->|D2 EnterpriseIdentityPlatform service token| Worker
     Worker -->|D3 bearer service token| API
 ```
 
@@ -78,9 +78,9 @@ The worker-service path uses client credentials against the local Auth Server. I
 ```mermaid
 flowchart LR
     Browser[Browser]
-    BFF[AuthFlowLab BFF]
-    Auth[AuthFlowLab Auth Server]
-    API[AuthFlowLab API Server]
+    BFF[EnterpriseIdentityPlatform BFF]
+    Auth[EnterpriseIdentityPlatform Auth Server]
+    API[EnterpriseIdentityPlatform API Server]
 
     Browser -->|E1 GET /bff/login| BFF
     BFF -->|E2 authorization code + PKCE| Auth
@@ -91,11 +91,11 @@ flowchart LR
     BFF -->|E7 bearer token| API
 ```
 
-The BFF stores access tokens in a server-side in-memory session. The browser receives only `AuthFlowLab.Bff.Session`, an HttpOnly cookie containing a random session identifier. The SPA exposes a separate BFF login mode and routes read, claims, write, and UserInfo requests through the BFF. Write requests require an `X-CSRF-TOKEN` header obtained from the BFF session endpoint.
+The BFF stores access tokens in a server-side in-memory session. The browser receives only `EnterpriseIdentityPlatform.Bff.Session`, an HttpOnly cookie containing a random session identifier. The SPA exposes a separate BFF login mode and routes read, claims, write, and UserInfo requests through the BFF. Write requests require an `X-CSRF-TOKEN` header obtained from the BFF session endpoint.
 
 ## Authorization Model
 
-Local AuthFlowLab tokens use the `scope` claim:
+Local EnterpriseIdentityPlatform tokens use the `scope` claim:
 
 - `content.read` allows read endpoints.
 - `content.write` allows write endpoints.
@@ -126,15 +126,15 @@ docker compose -f docker-compose.yml -f docker-compose.local.yml up -d --build
 Local backend:
 
 ```powershell
-dotnet run --project backend\AuthFlowLab.AuthServer\AuthFlowLab.AuthServer.csproj --urls http://localhost:5001
-dotnet run --project backend\AuthFlowLab.ApiServer\AuthFlowLab.ApiServer.csproj --urls http://localhost:5002
-dotnet run --project backend\AuthFlowLab.Bff\AuthFlowLab.Bff.csproj --urls http://localhost:5003
+dotnet run --project backend\EnterpriseIdentityPlatform.AuthServer\EnterpriseIdentityPlatform.AuthServer.csproj --urls http://localhost:5001
+dotnet run --project backend\EnterpriseIdentityPlatform.ApiServer\EnterpriseIdentityPlatform.ApiServer.csproj --urls http://localhost:5002
+dotnet run --project backend\EnterpriseIdentityPlatform.Bff\EnterpriseIdentityPlatform.Bff.csproj --urls http://localhost:5003
 ```
 
 Local frontend:
 
 ```powershell
-cd frontend\AuthFlowLab.Web
+cd frontend\EnterpriseIdentityPlatform.Web
 npm install
 npm run dev
 ```
@@ -168,13 +168,13 @@ Auth Server SSO requires a confidential web app registration in Microsoft Entra 
 Configure local secrets with:
 
 ```powershell
-dotnet user-secrets set "Auth:ExternalProviders:Entra:Enabled" "true" --project backend\AuthFlowLab.AuthServer
-dotnet user-secrets set "Auth:ExternalProviders:Entra:Authority" "https://login.microsoftonline.com/<tenant-id>/v2.0" --project backend\AuthFlowLab.AuthServer
-dotnet user-secrets set "Auth:ExternalProviders:Entra:ClientId" "<auth-server-web-app-client-id>" --project backend\AuthFlowLab.AuthServer
-dotnet user-secrets set "Auth:ExternalProviders:Entra:ClientSecret" "<client-secret>" --project backend\AuthFlowLab.AuthServer
+dotnet user-secrets set "Auth:ExternalProviders:Entra:Enabled" "true" --project backend\EnterpriseIdentityPlatform.AuthServer
+dotnet user-secrets set "Auth:ExternalProviders:Entra:Authority" "https://login.microsoftonline.com/<tenant-id>/v2.0" --project backend\EnterpriseIdentityPlatform.AuthServer
+dotnet user-secrets set "Auth:ExternalProviders:Entra:ClientId" "<auth-server-web-app-client-id>" --project backend\EnterpriseIdentityPlatform.AuthServer
+dotnet user-secrets set "Auth:ExternalProviders:Entra:ClientSecret" "<client-secret>" --project backend\EnterpriseIdentityPlatform.AuthServer
 ```
 
-The Entra username claim, by default `preferred_username`, must match a local `Auth:Users[*].Username` value. That local user controls the final AuthFlowLab scopes and roles.
+The Entra username claim, by default `preferred_username`, must match a local `Auth:Users[*].Username` value. That local user controls the final EnterpriseIdentityPlatform scopes and roles.
 
 ## Logout
 
@@ -209,16 +209,16 @@ BFF endpoints:
 
 HTTP request examples are available in:
 
-- `backend/AuthFlowLab.http`
-- `backend/AuthFlowLab.AuthServer/AuthFlowLab.AuthServer.http`
-- `backend/AuthFlowLab.ApiServer/AuthFlowLab.ApiServer.http`
+- `backend/EnterpriseIdentityPlatform.http`
+- `backend/EnterpriseIdentityPlatform.AuthServer/EnterpriseIdentityPlatform.AuthServer.http`
+- `backend/EnterpriseIdentityPlatform.ApiServer/EnterpriseIdentityPlatform.ApiServer.http`
 
 ## Verify
 
 ```powershell
-dotnet test backend\AuthFlowLab.sln
+dotnet test backend\EnterpriseIdentityPlatform.sln
 
-cd frontend\AuthFlowLab.Web
+cd frontend\EnterpriseIdentityPlatform.Web
 npm run build
 ```
 
@@ -226,23 +226,23 @@ npm run build
 
 Auth Server:
 
-- `backend/AuthFlowLab.AuthServer/Controllers/AccountController.cs` owns the login page, external login entry point, logout, and Auth Server cookie.
-- `backend/AuthFlowLab.AuthServer/Controllers/ConnectController.cs` owns `/connect/authorize`, `/connect/token`, UserInfo, PKCE validation, scope checks, and code exchange.
-- `backend/AuthFlowLab.AuthServer/Options/EntraExternalLoginOptions.cs` controls the configured Entra SSO provider.
-- `backend/AuthFlowLab.AuthServer/Services/JwtService.cs` signs user, service, and ID tokens.
+- `backend/EnterpriseIdentityPlatform.AuthServer/Controllers/AccountController.cs` owns the login page, external login entry point, logout, and Auth Server cookie.
+- `backend/EnterpriseIdentityPlatform.AuthServer/Controllers/ConnectController.cs` owns `/connect/authorize`, `/connect/token`, UserInfo, PKCE validation, scope checks, and code exchange.
+- `backend/EnterpriseIdentityPlatform.AuthServer/Options/EntraExternalLoginOptions.cs` controls the configured Entra SSO provider.
+- `backend/EnterpriseIdentityPlatform.AuthServer/Services/JwtService.cs` signs user, service, and ID tokens.
 
 API Server:
 
-- `backend/AuthFlowLab.ApiServer/Program.cs` configures local JWT validation, Entra JWT validation, API-key authentication, and authorization policies.
-- `backend/AuthFlowLab.ApiServer/Controllers/ContentController.cs` defines the protected endpoint matrix.
+- `backend/EnterpriseIdentityPlatform.ApiServer/Program.cs` configures local JWT validation, Entra JWT validation, API-key authentication, and authorization policies.
+- `backend/EnterpriseIdentityPlatform.ApiServer/Controllers/ContentController.cs` defines the protected endpoint matrix.
 
 Frontend:
 
-- `frontend/AuthFlowLab.Web/src/auth.ts` handles PKCE, callback exchange, MSAL login, token acquisition, and logout state cleanup.
-- `frontend/AuthFlowLab.Web/src/App.tsx` coordinates login state, API calls, claims inspection, and logout.
-- `frontend/AuthFlowLab.Web/src/config.ts` centralizes local URLs, client ID, redirect URI, scopes, and storage keys.
+- `frontend/EnterpriseIdentityPlatform.Web/src/auth.ts` handles PKCE, callback exchange, MSAL login, token acquisition, and logout state cleanup.
+- `frontend/EnterpriseIdentityPlatform.Web/src/App.tsx` coordinates login state, API calls, claims inspection, and logout.
+- `frontend/EnterpriseIdentityPlatform.Web/src/config.ts` centralizes local URLs, client ID, redirect URI, scopes, and storage keys.
 
 BFF:
 
-- `backend/AuthFlowLab.Bff/Controllers/BffController.cs` owns login, callback, session inspection, API proxies, CSRF validation, and logout.
-- `backend/AuthFlowLab.Bff/Services/BffSessionStore.cs` stores temporary PKCE state and server-side token sessions in memory.
+- `backend/EnterpriseIdentityPlatform.Bff/Controllers/BffController.cs` owns login, callback, session inspection, API proxies, CSRF validation, and logout.
+- `backend/EnterpriseIdentityPlatform.Bff/Services/BffSessionStore.cs` stores temporary PKCE state and server-side token sessions in memory.
